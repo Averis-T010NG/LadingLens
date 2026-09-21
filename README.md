@@ -52,27 +52,29 @@
         <li><a href="#23-the-seven-field-comparison">The Seven-Field Comparison</a></li>
       </ol>
     </li>
-    <li><a href="#3-try-it-in-two-minutes">Try It In Two Minutes</a></li>
-    <li><a href="#4-decision-ownership">Decision Ownership</a></li>
-    <li><a href="#5-technical-architecture">Technical Architecture</a>
+    <li><a href="#3-interface-walkthrough">Interface Walkthrough</a></li>
+    <li><a href="#4-try-it-in-two-minutes">Try It In Two Minutes</a></li>
+    <li><a href="#5-decision-ownership">Decision Ownership</a></li>
+    <li><a href="#6-technical-architecture">Technical Architecture</a>
       <ol>
-        <li><a href="#51-system-shape">System Shape</a></li>
-        <li><a href="#52-tech-stack">Tech Stack</a></li>
-        <li><a href="#53-cloud-and-deployment">Cloud And Deployment</a></li>
+        <li><a href="#61-system-shape">System Shape</a></li>
+        <li><a href="#62-the-judge-path-end-to-end">The Judge Path, End To End</a></li>
+        <li><a href="#63-tech-stack">Tech Stack</a></li>
+        <li><a href="#64-cloud-and-deployment">Cloud And Deployment</a></li>
       </ol>
     </li>
-    <li><a href="#6-setup">Setup</a>
+    <li><a href="#7-setup">Setup</a>
       <ol>
-        <li><a href="#61-backend">Backend</a></li>
-        <li><a href="#62-frontend">Frontend</a></li>
-        <li><a href="#63-full-container">Full Container</a></li>
-        <li><a href="#64-environment-variables">Environment Variables</a></li>
+        <li><a href="#71-backend">Backend</a></li>
+        <li><a href="#72-frontend">Frontend</a></li>
+        <li><a href="#73-full-container">Full Container</a></li>
+        <li><a href="#74-environment-variables">Environment Variables</a></li>
       </ol>
     </li>
-    <li><a href="#7-verification">Verification</a></li>
-    <li><a href="#8-limitations-and-claims-boundary">Limitations And Claims Boundary</a></li>
-    <li><a href="#9-repository-map">Repository Map</a></li>
-    <li><a href="#10-licence-and-attribution">Licence And Attribution</a></li>
+    <li><a href="#8-verification">Verification</a></li>
+    <li><a href="#9-limitations-and-claims-boundary">Limitations And Claims Boundary</a></li>
+    <li><a href="#10-repository-map">Repository Map</a></li>
+    <li><a href="#11-licence-and-attribution">Licence And Attribution</a></li>
   </ol>
 </details>
 
@@ -87,7 +89,7 @@ does not match what the shipper asked for.
 Two failures matter, and only one of them is visible from the inbox.
 
 <div align="center">
-  <img src="assets/problem-6koma.png" alt="Six-panel comic: an overflowing inbox, manual side-by-side checking of seven fields, a missed port-of-discharge mismatch, an expected shipment that never arrived as an email, the two-gate system, and an evidence-backed sign-off" width="100%" />
+  <img src="assets/problem-6koma.png" alt="Six-panel manga: a coordinator buried under 520 emails, checking seven fields across an SI and a draft BL by hand, rubber-stamping at midnight while POD SGSIN versus NLRTM slips past, a manager demanding to know where SYN-042 went when no email ever arrived for it, the two gates balancing the books, and a calm evidence-backed sign-off" width="100%" />
 </div>
 
 The first is the one everyone expects: a mismatch between the two documents
@@ -130,7 +132,32 @@ cell, or page region it came from, so a verdict can always be clicked back to
 its source. Textual equivalence is judged by pinned `jev-1.13.0`; numbers,
 schema, parsing and state transitions are deterministic code.
 
-## 3. Try It In Two Minutes
+## 3. Interface Walkthrough
+
+Captured from the deployed service at 1440x900. Every screen below is
+reachable right now on the live link.
+
+| Public judge path | Landing |
+| --- | --- |
+| [![Judge](assets/screens/02-judge.png)](https://averis-222536409832.asia-southeast1.run.app/judge) | [![Landing](assets/screens/01-landing.png)](https://averis-222536409832.asia-southeast1.run.app/) |
+| Upload an unseen SI and draft BL, no account. Synthetic-only is stated up front and enforced server-side. | The entry point. Guest-only; there is no password to manage. |
+
+| Inbox — Gate 1 | Email detail |
+| --- | --- |
+| [![Inbox](assets/screens/03-inbox.png)](https://averis-222536409832.asia-southeast1.run.app/inbox) | [![Email detail](assets/screens/04-email-detail.png)](https://averis-222536409832.asia-southeast1.run.app/emails/email_001) |
+| 520 received / 520 accounted for / 0 lost, with the category and outcome for every message. | The seven-field comparison for one case, each value clickable back to its source. |
+
+| Review queue | Evaluation |
+| --- | --- |
+| [![Review](assets/screens/05-review.png)](https://averis-222536409832.asia-southeast1.run.app/review) | [![Evaluation](assets/screens/06-evaluation.png)](https://averis-222536409832.asia-southeast1.run.app/evaluation) |
+| What a named human still has to decide, and the append-only history of what they decided. | Gate coverage and the scoreboard the submission artifact is built from. |
+
+| Control graph | Settings |
+| --- | --- |
+| [![Graph](assets/screens/07-graph.png)](https://averis-222536409832.asia-southeast1.run.app/graph) | [![Settings](assets/screens/08-settings.png)](https://averis-222536409832.asia-southeast1.run.app/settings) |
+| The control loop as a graph: ledger, cases, evidence and review in one view. | Guest-scoped Reset All, so the demo is repeatable for the next visitor. |
+
+## 4. Try It In Two Minutes
 
 No account, no credentials, nothing to install.
 
@@ -148,7 +175,7 @@ If a provider call fails, the screen says so. A prepared example may appear
 beside your run, clearly labelled `PREPARED FALLBACK` — never presented as
 your result, and your failed upload stays visible and retryable.
 
-## 4. Decision Ownership
+## 5. Decision Ownership
 
 The interesting engineering question in this problem is not "can a model read
 a document" but "who is allowed to decide what". LadingLens is explicit about
@@ -169,9 +196,9 @@ shows as needing review, with a retry, rather than inventing one.
 
 See [`docs/ai.md`](docs/ai.md) for the full decision register.
 
-## 5. Technical Architecture
+## 6. Technical Architecture
 
-### 5.1 System Shape
+### 6.1 System Shape
 
 ```mermaid
 flowchart LR
@@ -202,7 +229,51 @@ Both gates write to PostgreSQL through an append-only audit trail. Review
 actions and audit events carry database-level `BEFORE UPDATE OR DELETE`
 triggers, so history cannot be rewritten by application code at all.
 
-### 5.2 Tech Stack
+### 6.2 The Judge Path, End To End
+
+What actually happens when an evaluator drops a fresh pair into `/judge`.
+Every step either produces evidence or fails visibly; there is no branch that
+quietly invents an answer.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant J as Judge (no account)
+  participant W as React /judge
+  participant A as FastAPI
+  participant V as jev-1.13.0
+  participant G as Gemini 3.5 Flash
+  participant D as PostgreSQL
+
+  J->>W: open /judge
+  W->>A: POST /api/session
+  A-->>W: guest session token
+  J->>W: drop SI + draft BL, confirm synthetic
+  W->>A: POST /api/judge/runs
+  A->>A: preflight: magic bytes, size, format
+  A->>V: which document is which? (one call per document)
+  V-->>A: SI / DRAFT_BL + probabilities
+  alt local parse is unambiguous
+    A->>A: parse TXT / XLSX / DOCX / PDF with anchors
+  else scanned or ambiguous
+    A->>G: read these regions
+    G-->>A: values, grounded back to anchors
+  end
+  A->>V: are these seven field pairs equivalent?
+  V-->>A: per-field probability
+  A->>D: persist run, verdicts, audit (append-only)
+  A-->>W: 7 verdicts + evidence URLs
+  J->>W: click a value
+  W->>A: GET /api/judge/runs/{id}/documents/{id}
+  A-->>J: the exact source bytes
+```
+
+If any provider call fails, the run is recorded `FAILED` with a plain message
+and no outcome. The failed upload stays visible and retryable, and a prepared
+example may be shown beside it — labelled `PREPARED FALLBACK`, never as the
+judge's own result.
+
+### 6.3 Tech Stack
 
 | Layer      | Choice                                                                  |
 | ---------- | ----------------------------------------------------------------------- |
@@ -213,7 +284,7 @@ triggers, so history cannot be rewritten by application code at all.
 | Documents  | PyMuPDF, python-docx, openpyxl, lxml                                    |
 | Deployment | Docker, Cloud Run, Artifact Registry, Workload Identity Federation      |
 
-### 5.3 Cloud And Deployment
+### 6.4 Cloud And Deployment
 
 One Cloud Run service serves the FastAPI application and the compiled React
 build together, so the demo link is a single origin with no CORS surface.
@@ -237,7 +308,7 @@ artifact.
 Details in [`docs/cloud.md`](docs/cloud.md) and
 [`docs/references/deployment.md`](docs/references/deployment.md).
 
-## 6. Setup
+## 7. Setup
 
 These steps were verified against a clean checkout of this repository, via
 `git archive`, during the work recorded in
@@ -245,7 +316,7 @@ These steps were verified against a clean checkout of this repository, via
 full container, each reaching a working `/judge` with the seed ready. The
 runbook carries the longer explanations; this section is the short path.
 
-### 6.1 Backend
+### 7.1 Backend
 
 From `apps/api`:
 
@@ -269,7 +340,7 @@ Alembic reads `DATABASE_URL` from the shell environment rather than from
 same variable up from `.env` on its own. Without it, `GET /api/health/ready`
 returns `503` with `"reason": "DATABASE_URL is not set"`.
 
-### 6.2 Frontend
+### 7.2 Frontend
 
 From `apps/web`:
 
@@ -282,7 +353,7 @@ Vite proxies `/api` to `http://localhost:8080`, so start the backend first.
 `bun run build` produces the same `apps/web/dist` that the container serves in
 production.
 
-### 6.3 Full Container
+### 7.3 Full Container
 
 From the repository root, exactly as deployed:
 
@@ -295,7 +366,7 @@ The image builds the frontend with Bun, then copies the compiled assets and
 the checked-in synthetic bundle into a Python 3.12 runtime serving both on
 port 8080 as a non-root user.
 
-### 6.4 Environment Variables
+### 7.4 Environment Variables
 
 None of these are secrets in the repository; `apps/api/.env.example` ships
 them empty.
@@ -315,7 +386,7 @@ in `.env.example` — `docker run --env-file` treats an empty `VAR=` as setting
 it blank, which would override the image's own correct defaults and break the
 seed build.
 
-## 7. Verification
+## 8. Verification
 
 | Check                                       | Result                                                     |
 | ------------------------------------------- | ---------------------------------------------------------- |
@@ -329,7 +400,7 @@ CI runs the full API suite against a real PostgreSQL 16 service on every pull
 request, so the persistence, idempotency and append-only guarantees are
 exercised against a real database rather than a mock.
 
-## 8. Limitations And Claims Boundary
+## 9. Limitations And Claims Boundary
 
 Stated plainly, because a demo that overclaims is worse than one that does
 less.
@@ -350,7 +421,7 @@ less.
 - **Human sign-off is required by design,** not a limitation to be engineered
   away. Anything that cannot be decided safely goes to a named reviewer.
 
-## 9. Repository Map
+## 10. Repository Map
 
 ```
 apps/api/            FastAPI service: ingestion, extraction, comparison,
@@ -363,7 +434,7 @@ scripts/             Deployment smoke check and GCP control verification
 .github/workflows/   CI (PostgreSQL 16) and Deploy (Cloud Run)
 ```
 
-## 10. Licence And Attribution
+## 11. Licence And Attribution
 
 This repository is MIT licensed — see [`LICENSE`](LICENSE).
 
